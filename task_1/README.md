@@ -37,6 +37,7 @@ spec:
 status:
   loadBalancer: {}
 ```
+![](/task_1/img/2022-01-23_181815.png)
 
 3. В рамках HW написал deployment с 3-мя репликами и запустил. При попытке удалить одну из реплик, k8s автоматически создаёт новую т.к кол-во реплик должно быть 3.
 ```bash
@@ -79,6 +80,8 @@ nginx-deployment-8d545c96d-frx9l   1/1     Running   0          50m
 nginx-deployment-8d545c96d-tt7h5   1/1     Running   0          50m
 nginx-deployment-8d545c96d-v2gjw   1/1     Running   0          50m
 ```
+![](/task_1/img/2022-01-23_181548.png)
+
 ###################
 
 <details>
