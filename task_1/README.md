@@ -1,3 +1,87 @@
+###################
+# My Homework
+1. Поднял локально на Ubuntu Server 20.04 свежую версию Kubernetes
+2. Проделал все операции описанные в рамках task_1, установка Dashboard, Metrics server и.т.п. Для доступа с локальной машины в dashboard, пришлось отредактировать service kubernetes-dashboard, прокинуть порт tcp 32321 и поменять типа с ClusterIP на NodePort.
+```bash
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"k8s-app":"kubernetes-dashboard"},"name":"kubernetes-dashboard","namespace":"kubernetes-dashboard"},"spec":{"ports":[{"port":443,"targetPort":8443}],"selector":{"k8s-app":"kubernetes-dashboard"}}}
+  creationTimestamp: "2022-01-23T05:36:10Z"
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+  resourceVersion: "23095"
+  uid: e47e72be-2264-4652-b023-a93045b3b15c
+spec:
+  clusterIP: 10.109.74.122
+  clusterIPs:
+  - 10.109.74.122
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - nodePort: 32321
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    k8s-app: kubernetes-dashboard
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+```
+
+3. В рамках HW написал deployment с 3мя репликами и запустил. При попытке удалить одну из реплик, k8s автоматически создаёт новую т.к кол-во реплик должно быть 3
+```bash
+k8s_adm@k8s-control:~/hw_labs/education/task_1$ cat nginx-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+```
+
+Применение
+```bash
+k8s_adm@k8s-control:~/hw_labs/education/task_1$ kubectl apply -f nginx-deployment.yaml
+deployment.apps/nginx-deployment created
+```
+
+Результат
+```bash
+k8s_adm@k8s-control:~/hw_labs/education/task_1$ kubectl get pods
+NAME                               READY   STATUS    RESTARTS   AGE
+nginx                              1/1     Running   0          6h1m
+nginx-deployment-8d545c96d-frx9l   1/1     Running   0          50m
+nginx-deployment-8d545c96d-tt7h5   1/1     Running   0          50m
+nginx-deployment-8d545c96d-v2gjw   1/1     Running   0          50m
+```
+###################
+
+
 # Task 1.1
 Requirements:
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
