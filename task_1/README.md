@@ -38,7 +38,7 @@ status:
   loadBalancer: {}
 ```
 
-3. В рамках HW написал deployment с 3мя репликами и запустил. При попытке удалить одну из реплик, k8s автоматически создаёт новую т.к кол-во реплик должно быть 3
+3. В рамках HW написал deployment с 3-мя репликами и запустил. При попытке удалить одну из реплик, k8s автоматически создаёт новую т.к кол-во реплик должно быть 3.
 ```bash
 k8s_adm@k8s-control:~/hw_labs/education/task_1$ cat nginx-deployment.yaml
 apiVersion: apps/v1
@@ -81,7 +81,8 @@ nginx-deployment-8d545c96d-v2gjw   1/1     Running   0          50m
 ```
 ###################
 
-
+<details>
+<summary>Description the task_1, created by original author</summary>
 # Task 1.1
 Requirements:
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
@@ -220,3 +221,4 @@ kubectl run web --image=nginx:latest --dry-run=client -o yaml
 ```
 ### Homework
 * Create a deployment nginx. Set up two replicas. Remove one of the pods, see what happens.
+</details>
