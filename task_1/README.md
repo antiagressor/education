@@ -82,7 +82,8 @@ nginx-deployment-8d545c96d-v2gjw   1/1     Running   0          50m
 ###################
 
 <details>
-<summary>Description the task_1, created by original author</summary>
+<summary>Description the task_1, created by original author.</summary>
+
 # Task 1.1
 Requirements:
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
