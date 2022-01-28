@@ -1,7 +1,17 @@
 ###################
-# My Homework
-1. Поднял локально на Ubuntu Server 20.04 свежую версию Kubernetes
-2. Проделал все операции описанные в рамках task_1, установка Dashboard, Metrics server и.т.п. Для доступа с локальной машины в dashboard, пришлось отредактировать service kubernetes-dashboard, прокинуть порт tcp 32321 и поменять типа с ClusterIP на NodePort.
+# My Homework Task_1
+1. Поднял локально на Ubuntu Server 20.04 свежую версию Kubernetes 1.23
+2. Проделал все операции описанные в рамках task_1, установка Dashboard, Metrics server и.т.п. 
+
+Dashboard install
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
+```
+Metrics install
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+Для доступа с локальной машины в dashboard, пришлось отредактировать service kubernetes-dashboard, прокинуть порт tcp 32321 и поменять тип с ClusterIP на NodePort.
 ```bash
 apiVersion: v1
 kind: Service
@@ -37,6 +47,7 @@ spec:
 status:
   loadBalancer: {}
 ```
+На скрине рабочий Dashboard.
 ![](/task_1/img/2022-01-23_181815.png)
 
 3. В рамках HW написал deployment с 3-мя репликами и запустил. При попытке удалить одну из реплик, k8s автоматически создаёт новую т.к кол-во реплик должно быть 3.
