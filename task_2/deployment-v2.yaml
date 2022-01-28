@@ -3,16 +3,18 @@ kind: Deployment
 metadata:
   labels:
     app: web
-  name: web
+  name: web-canary
 spec:
-  replicas: 10
+  replicas: 0
   selector:
     matchLabels:
       app: web
+      type: canary
   template:
     metadata:
       labels:
         app: web
+        type: canary
     spec:
       containers:
       - image: nginx:latest
@@ -25,4 +27,4 @@ spec:
       volumes:
         - name: config-nginx
           configMap:
-            name: nginx-configmap
+            name: nginx-configmap-v2
