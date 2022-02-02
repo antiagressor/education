@@ -351,7 +351,7 @@ https://youtu.be/rdPyBsMNphg
 
 
 <details>
-<summary>Description the task_1, created by original author the course.</summary>
+<summary>Description the task_2, created by original author the course.</summary>
 
 # Task 2
 ### ConfigMap & Secrets
