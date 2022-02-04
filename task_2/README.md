@@ -190,160 +190,224 @@ weave-net-jk4tp                      Controlled  By:  DaemonSet/weave-net
 
 Создано 2 Deployment, один отдаёт содержимое html странички с текстом Nginx_v1, второй с Nginx_v2
 
-Содержимое ConfigMap
+Содержимое файла ./canary/deployment.yaml (в нем также сразу описан ConfigMap и Service)
 ```bash
-k8s_adm@k8s-control:~/hw_labs/education/task_2$ cat nginx-configmap.yaml
-apiVersion: v1
-data:
-  default.conf: |-
-    server {
-        listen 80 default_server;
-        server_name _;
-        default_type text/plain;
-
-        location / {
-            return 200 'Application_v1\n';
-        }
-    }
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: nginx-configmap
-k8s_adm@k8s-control:~/hw_labs/education/task_2$ cat nginx-configmap-v2.yaml
-apiVersion: v1
-data:
-  default.conf: |-
-    server {
-        listen 80 default_server;
-        server_name _;
-        default_type text/plain;
-
-        location / {
-            return 200 'Application_v2\n';
-        }
-    }
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: nginx-configmap-v2
-k8s_adm@k8s-control:~/hw_labs/education/task_2$
-```
-
-Содержимое Deployments
-```bash
-k8s_adm@k8s-control:~/hw_labs/education/task_2$ cat deployment.yaml
+k8s_adm@k8s-control:~/hw_labs/education/task_2/canary$ cat deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: web
-  name: web
+  name: nginx-v1
 spec:
-  replicas: 10
+  replicas: 1
   selector:
     matchLabels:
-      app: web
+      app: nginx
+      version: v1
   template:
     metadata:
       labels:
-        app: web
+        app: nginx
+        version: v1
     spec:
       containers:
-      - image: nginx:latest
-        name: nginx
+      - name: nginx
+        image: "openresty/openresty:centos"
         ports:
-        - containerPort: 80
+        - name: http
+          protocol: TCP
+          containerPort: 80
         volumeMounts:
-          - name: config-nginx
-            mountPath: /etc/nginx/conf.d
+        - mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+          name: config
+          subPath: nginx.conf
       volumes:
-        - name: config-nginx
-          configMap:
-            name: nginx-configmap
-```
-```bash
-k8s_adm@k8s-control:~/hw_labs/education/task_2$ cat deployment-v2.yaml
-apiVersion: apps/v1
-kind: Deployment
+      - name: config
+        configMap:
+          name: nginx-v1
+
+---
+
+apiVersion: v1
+kind: ConfigMap
 metadata:
   labels:
-    app: web
-  name: web-canary
-spec:
-  replicas: 0
-  selector:
-    matchLabels:
-      app: web
-      type: canary
-  template:
-    metadata:
-      labels:
-        app: web
-        type: canary
-    spec:
-      containers:
-      - image: nginx:latest
-        name: nginx
-        ports:
-        - containerPort: 80
-        volumeMounts:
-          - name: config-nginx
-            mountPath: /etc/nginx/conf.d
-      volumes:
-        - name: config-nginx
-          configMap:
-            name: nginx-configmap-v2
-```
+    app: nginx
+    version: v1
+  name: nginx-v1
+data:
+  nginx.conf: |-
+    worker_processes  1;
 
-У сервиса web в качестве selector указано app:web, оба deployment имеют label web, т.е сервис будет посылать запросы на оба Deployments. У Ingree в качестве backend указан service:web, запросы будут идти на нужный нам сервис.
+    events {
+        accept_mutex on;
+        multi_accept on;
+        use epoll;
+        worker_connections  1024;
+    }
 
-```bash
-k8s_adm@k8s-control:~/hw_labs/education/task_2$ kubectl get svc
-NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
-kubernetes     ClusterIP   10.96.0.1       <none>        443/TCP        6d17h
-web            ClusterIP   10.101.92.196   <none>        80/TCP         4d2h
-web-headless   ClusterIP   None            <none>        80/TCP         4d1h
-web-np         NodePort    10.111.209.14   <none>        80:31409/TCP   18h
-k8s_adm@k8s-control:~/hw_labs/education/task_2$ cat service_template.yaml
+    http {
+        ignore_invalid_headers off;
+        server {
+            listen 80;
+            location / {
+                access_by_lua '
+                    local header_str = ngx.say("nginx-v1")
+                ';
+            }
+        }
+    }
+
+---
+
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
-  labels:
-    app: web
-  name: web
+  name: nginx-v1
 spec:
+  type: ClusterIP
   ports:
   - port: 80
     protocol: TCP
-    targetPort: 80
+    name: http
   selector:
-    app: web
+    app: nginx
+    version: v1
+```
+
+Содержимое файла ./canary/deployment_v2.yaml (в нем также сразу описан ConfigMap и Service)
+```bash
+k8s_adm@k8s-control:~/hw_labs/education/task_2/canary$ cat deployment_v2.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: v2
+    spec:
+      containers:
+      - name: nginx
+        image: "openresty/openresty:centos"
+        ports:
+        - name: http
+          protocol: TCP
+          containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+          name: config
+          subPath: nginx.conf
+      volumes:
+      - name: config
+        configMap:
+          name: nginx-v2
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: nginx
+    version: v2
+  name: nginx-v2
+data:
+  nginx.conf: |-
+    worker_processes  1;
+
+    events {
+        accept_mutex on;
+        multi_accept on;
+        use epoll;
+        worker_connections  1024;
+    }
+
+    http {
+        ignore_invalid_headers off;
+        server {
+            listen 80;
+            location / {
+                access_by_lua '
+                    local header_str = ngx.say("nginx-v2")
+                ';
+            }
+        }
+    }
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-v2
+spec:
   type: ClusterIP
-status:
-  loadBalancer: {}
-k8s_adm@k8s-control:~/hw_labs/education/task_2$ cat ingress.yaml
+  ports:
+  - port: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: nginx
+    version: v2
+```
+
+Содержимое файлов ingress.yaml и ingress_v2.yaml
+
+```bash
+k8s_adm@k8s-control:~/hw_labs/education/task_2/canary$ cat ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-web
+  name: nginx
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: nginx
 spec:
   rules:
-  - http:
+  - host: canary.example.com
+    http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-             name: web
-             port:
-                number: 80
+            name: nginx-v1
+            port:
+              number: 80
 ```
+```bash              
+k8s_adm@k8s-control:~/hw_labs/education/task_2/canary$ cat ingress_v2.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-header: canary
+  name: nginx-canary
+spec:
+  rules:
+  - host: canary.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-v2
+            port:
+              number: 80
+```
+При добавлении анотации nginx.ingress.kubernetes.io/canary-by-header: canary, если выполнять запрос с header canary:always, то ingress будет перенаправлять всегда на Nginx_v2.
 
+Если добавить анотацию nginx.ingress.kubernetes.io/canary-weight: "10", то 10% трафика будет перенаправляться на Nginx_v2.
 
-Ссылка на youtube видео с демонстрацией Canary Deployment:
+Ссылка на youtube видео с демонстрацией работы Canary Deployment:
 https://youtu.be/pQAv428KcU8
 
 
