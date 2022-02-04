@@ -188,7 +188,7 @@ weave-net-jk4tp                      Controlled  By:  DaemonSet/weave-net
 
 # Canary deployment
 
-Создано 2 Deployment, один отдаёт содержимое html странички с текстом Application_v1, второй с Application_v2
+Создано 2 Deployment, один отдаёт содержимое html странички с текстом Nginx_v1, второй с Nginx_v2
 
 Содержимое ConfigMap
 ```bash
@@ -344,7 +344,7 @@ spec:
 
 
 Ссылка на youtube видео с демонстрацией Canary Deployment:
-https://youtu.be/rdPyBsMNphg
+https://youtu.be/pQAv428KcU8
 
 
 ###################

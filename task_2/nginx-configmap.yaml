@@ -7,7 +7,7 @@ data:
         default_type text/plain;
 
         location / {
-            return 200 'Application_v1\n';
+            return 200 '$hostname\n';
         }
     }
 kind: ConfigMap

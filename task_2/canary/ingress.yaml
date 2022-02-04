@@ -1,18 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-web
+  name: nginx
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: nginx
 spec:
   rules:
-  - host: deploy.prod 
+  - host: canary.example.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-             name: web-np
-             port: 
-                number: 80
+            name: nginx-v1
+            port:   
+              number: 80
