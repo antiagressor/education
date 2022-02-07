@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myvolumes-deploy
+  labels:
+    app: alpine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpine
+  template:
+    metadata:
+      labels:
+        app: alpine
+    spec:
+      containers:
+        - image: alpine
+          name: myvolumes-container
+          command: ['sh', '-c', 'echo The Bench Container 1 is Running ; sleep 3600']
+          volumeMounts:
+            - mountPath: /demo
+              name: demo-volume
+      volumes:
+        - name: demo-volume
+          emptyDir: {}

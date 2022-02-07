@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host:
+    http:
+      paths:
+      - backend:
+          service:
+            name: nginx-v1
+            port:
+              number: 80
+        path: /web
+        pathType: Prefix
+  - host:
+    http:
+      paths:
+      - backend:
+          service:
+            name: minio-svc
+            port:
+              number: 9001
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer: {}

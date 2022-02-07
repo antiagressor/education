@@ -26,13 +26,14 @@ spec:
               mountPath: "/data"
               readOnly: false
   volumeClaimTemplates:
-    - metadata:
-        name: minio
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-          requests:
-            storage: 1Gi
+  - metadata:
+      name: minio
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: ""
+      resources:
+        requests:
+          storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
