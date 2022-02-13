@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sa-namespace-admin-rb
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sa-namespace-admin-role
+subjects:
+- namespace: default
+  kind: ServiceAccount
+  name: sa-namespace-admin
