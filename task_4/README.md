@@ -1,3 +1,19 @@
+###################
+# My Homework Task_4
+
+1. Созданы пользователи deploy_view, deploy_edit. Для каждого создан и подписан kubernetes-ом сертификат. Создан манифест с Role и RoleBinding. Пользователи имеют требуемы права. Манифесты находятся в папках, для каждого пользователя отдельная папка в данном репозитории.
+
+2. Созданы пользователи prod_admin и prod_view. Создано namespace prod. Для каждого создан и подписан kubernetes-ом сертификат, далее манифесты с Role и RoleBinding.
+Манифесты находятся в папках, для каждого пользователя отдельная папка в данном репозитории.
+
+3. Создан sa sa-namespace-admin, с помощью манифестов, которые находятся в папке service_account, настроен полный доступ к namespace default. 
+
+
+###################
+
+<details>
+<summary>Description the task_4, created by original author.</summary>
+
 # Task 4
 ### Check what I can do
 ```bash
@@ -82,3 +98,4 @@ Now we can see pods
 * Create users deploy_view and deploy_edit. Give the user deploy_view rights only to view deployments, pods. Give the user deploy_edit full rights to the objects deployments, pods.
 * Create namespace prod. Create users prod_admin, prod_view. Give the user prod_admin admin rights on ns prod, give the user prod_view only view rights on namespace prod.
 * Create a serviceAccount sa-namespace-admin. Grant full rights to namespace default. Create context, authorize using the created sa, check accesses.
+</details>
